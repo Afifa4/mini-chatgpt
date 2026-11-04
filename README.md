@@ -109,10 +109,10 @@ Mini ChatGpt/
 
 ```bash
 cd backend
-npm install --legacy-peer-deps
+npm install
 ```
 
-`--legacy-peer-deps` is needed because `@langchain/community` declares an optional peer dependency that conflicts with `dotenv`.
+`backend/.npmrc` turns on `legacy-peer-deps`, because `@langchain/community` declares an optional peer dependency that conflicts with `dotenv`.
 
 Create `backend/.env`:
 
@@ -128,6 +128,9 @@ Create `backend/.env`:
 | `IMG_KIT_KEY` | ImageKit private key |
 | `GOOGLE_USER` | Gmail address that sends the emails |
 | `GOOGLE_APP_PASSWORD` | Gmail App Password for that address |
+| `CLIENT_URL` | Optional. Frontend URL, defaults to `http://localhost:5173` |
+| `API_URL` | Optional. Backend URL used in email links, defaults to `http://localhost:3000` |
+| `NODE_ENV` | Set to `production` when deployed, which makes the auth cookie HTTPS-only |
 
 Start the server:
 
@@ -144,6 +147,19 @@ npm run dev
 ```
 
 Open http://localhost:5173.
+
+## Deployment (Render)
+
+In production the backend also serves the built React app, so the whole project runs as one Render **Web Service** on one URL. Keeping one URL means the login cookie stays first-party and works in every browser.
+
+| Setting | Value |
+|---|---|
+| Root directory | leave empty (repository root) |
+| Build command | `cd frontend && npm ci --include=dev && npm run build && cd ../backend && npm ci` |
+| Start command | `cd backend && npm start` |
+| Environment | every variable above, with `NODE_ENV=production` and `CLIENT_URL` and `API_URL` both set to the service URL, e.g. `https://mini-chatgpt.onrender.com` |
+
+Also allow Render to reach MongoDB Atlas under **Network Access**.
 
 ## API overview
 
@@ -173,7 +189,6 @@ Open http://localhost:5173.
 ## Known limitations
 
 - **Large PDFs:** retrieval loads all embeddings of a chat into memory. Very large documents would need MongoDB Atlas Vector Search instead.
-- **Deployment:** the frontend and backend URLs are hardcoded to `localhost`, and the auth cookie is not yet set up for HTTPS.
 - **Rate limits:** chat messages, PDF uploads and sign-ups are not rate limited yet.
 - **Responses:** answers are not streamed, and the user's message appears only after the AI replies.
 - **Mobile:** the sidebar is hidden on small screens.
@@ -181,7 +196,6 @@ Open http://localhost:5173.
 
 ## Roadmap
 
-- [ ] Environment-based URLs and secure cookies for deployment
 - [ ] Rate limits on chat, upload and sign-up
 - [ ] Show the user's message immediately, with a retry on failure
 - [ ] Streaming responses

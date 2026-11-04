@@ -1,10 +1,11 @@
 import { Server } from "socket.io";
+import { CLIENT_URL } from "../config/env.js";
 
 let io;
 export function initSocket(httpServer) {
   io = new Server(httpServer, {
     cors: {
-      origin: "http://localhost:5173",
+      origin: CLIENT_URL,
       credentials: true,
     },
   });

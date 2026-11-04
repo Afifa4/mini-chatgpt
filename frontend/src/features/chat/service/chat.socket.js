@@ -1,7 +1,9 @@
 import { io } from "socket.io-client";
+import { API_URL } from "../../../app/config.js";
 
 export const initializeSocketConnection = () => {
-  const socket = io("http://localhost:3000", {
+  // Empty URL means the page's own server
+  const socket = io(API_URL || undefined, {
     withCredentials: true,
   });
 

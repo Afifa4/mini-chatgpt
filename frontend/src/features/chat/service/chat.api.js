@@ -1,12 +1,13 @@
 import axios from "axios";
+import { API_URL } from "../../../app/config.js";
 
 const api = axios.create({
-  baseURL: "http://localhost:3000",
+  baseURL: API_URL,
   withCredentials: true,
 });
 
 export async function sendMessage({ message, chatId }) {
-  const response = await api.post("api/chats/message", {
+  const response = await api.post("/api/chats/message", {
     message,
     chat: chatId,
   });

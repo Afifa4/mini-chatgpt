@@ -3,6 +3,10 @@ import userModel from "../models/user.model.js";
 import jwt from "jsonwebtoken";
 import redis from "../config/cache.js";
 import { AppError } from "../utils/AppError.js";
+import { API_URL, CLIENT_URL, authCookieOptions } from "../config/env.js";
+
+const emailVerifiedUrl = (status) =>
+  `${CLIENT_URL}/email-verified?status=${status}`;
 
 async function sendVerificationEmail(user) {
   const EmailVerificationToken = jwt.sign(
@@ -22,7 +26,7 @@ async function sendVerificationEmail(user) {
     <p>Thank you for registering at ChatGpt.</p>
     <p>We are excited to have you on board. If you have any questions or need assistance, feel free to reach out to our support team.</p>
     <p>To verify your email address, please click the link below:</p>
-    <a href="http://localhost:3000/api/auth/verify-email/${EmailVerificationToken}">Verify Email</a>
+    <a href="${API_URL}/api/auth/verify-email/${EmailVerificationToken}">Verify Email</a>
     <p>If you did not sign up for this account, please ignore this email.</p>
     <p>Best regards,</p>
     <p>The ChatGpt Team</p>`,
@@ -101,7 +105,7 @@ export async function forgotPassword(req, res) {
       subject: "Reset your password",
       html: `<h1>Hi ${user.username},</h1>
     <p>We received a request to reset your password.</p>
-    <a href="http://localhost:5173/reset-password?token=${resetToken}">Reset Password</a>
+    <a href="${CLIENT_URL}/reset-password?token=${resetToken}">Reset Password</a>
     <p>This link expires in 15 minutes and can be used only once.</p>
     <p>If you did not request this, please ignore this email.</p>`,
     });
@@ -163,22 +167,22 @@ export async function verifyEmail(req, res) {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
     if (decoded.type !== "email_verification") {
-      return res.redirect("http://localhost:5173/email-verified?status=error");
+      return res.redirect(emailVerifiedUrl("error"));
     }
 
     const user = await userModel.findOne({ email: decoded.email });
 
     if (!user) {
-      return res.redirect("http://localhost:5173/email-verified?status=error");
+      return res.redirect(emailVerifiedUrl("error"));
     }
 
     user.verified = true;
     await user.save();
 
-    return res.redirect("http://localhost:5173/email-verified?status=success");
+    return res.redirect(emailVerifiedUrl("success"));
   } catch (err) {
     console.error("Error verifying email:", err);
-    return res.redirect("http://localhost:5173/email-verified?status=error");
+    return res.redirect(emailVerifiedUrl("error"));
   }
 }
 export async function loginUser(req, res) {
@@ -209,11 +213,8 @@ export async function loginUser(req, res) {
   );
 
   res.cookie("token", token, {
-    httpOnly: true,
-    sameSite: "lax",
-    secure: false, // dev mein false; HTTPS par deploy karte waqt true
+    ...authCookieOptions,
     maxAge: 24 * 60 * 60 * 1000,
-    path: "/",
   });
 
   res.status(200).json({
@@ -251,12 +252,7 @@ export async function logoutUser(req, res) {
     await redis.set(token, "blacklisted", "EX", ttl);
   }
 
-  res.clearCookie("token", {
-    httpOnly: true,
-    sameSite: "lax",
-    secure: false,
-    path: "/",
-  });
+  res.clearCookie("token", authCookieOptions);
 
   res.status(200).json({ message: "Logout successful", success: true });
 }
