@@ -48,9 +48,16 @@ export async function sendMessage(req, res) {
 
   history.reverse();
 
+  // If PDF search fails (e.g. embedding quota), still answer without the PDF
+  let relevantChunks = [];
+  try {
+    relevantChunks = await findRelevantChunks(chat._id, message);
+  } catch (err) {
+    console.error("Error finding PDF chunks:", err.message);
+  }
+
   let result;
   try {
-    const relevantChunks = await findRelevantChunks(chat._id, message);
     result = await generateResponse(history, relevantChunks);
   } catch (err) {
     console.error("Error generating AI response:", err);

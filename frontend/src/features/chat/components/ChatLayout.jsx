@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { useSelector } from "react-redux";
 import Sidebar from "./Sidebar.jsx";
 import ChatHeader from "./ChatHeader.jsx";
@@ -9,17 +10,22 @@ function ChatLayout() {
   const currentChatId = useSelector((state) => state.chat.currentChatId);
   const isLoading = useSelector((state) => state.chat.isLoading);
   const error = useSelector((state) => state.chat.error);
+  // Only used on small screens; on desktop the sidebar is always visible
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   const messages = chats[currentChatId]?.messages || [];
 
   const isNewChat = messages.length === 0 && !isLoading && !error;
 
   return (
-    <div className="flex h-screen overflow-hidden bg-[#212121] text-[#ececec] [color-scheme:dark]">
-      <Sidebar />
+    <div className="flex h-dvh overflow-hidden bg-[#212121] text-[#ececec] [color-scheme:dark]">
+      <Sidebar
+        isMobileOpen={isSidebarOpen}
+        onMobileClose={() => setIsSidebarOpen(false)}
+      />
 
       <main className="flex min-w-0 flex-1 flex-col">
-        <ChatHeader />
+        <ChatHeader onOpenSidebar={() => setIsSidebarOpen(true)} />
 
         {/* Scrollable message area */}
         <div className="flex-1 overflow-y-auto [scrollbar-color:#424242_transparent] [scrollbar-width:thin]">
