@@ -3,10 +3,9 @@ import { useChat } from "../hooks/useChat";
 import ChatLayout from "../components/ChatLayout.jsx";
 
 const Dashboard = () => {
-  const { initializeSocketConnection, handleGetChats } = useChat();
+  const { handleGetChats } = useChat();
 
   useEffect(() => {
-    initializeSocketConnection();
     handleGetChats();
   }, []);
 

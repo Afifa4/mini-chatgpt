@@ -23,7 +23,7 @@ A full-stack AI chat app built with the MERN stack. You can chat with an AI assi
 - Markdown answers, including tables and code blocks
 
 **Chat with your PDF (RAG)**
-- Upload a PDF of up to 10 MB into a new or existing chat
+- Upload a PDF of up to 4 MB into a new or existing chat
 - The text is split into chunks and turned into embeddings, which are stored in MongoDB
 - Each question retrieves the 5 most relevant chunks, and the answer cites their page numbers
 - Scanned PDFs without readable text are rejected with a clear message
@@ -148,7 +148,19 @@ npm run dev
 
 Open http://localhost:5173.
 
-## Deployment (Render)
+## Deployment
+
+### Vercel
+
+`vercel.json` deploys the built frontend as static files and runs the Express app from `api/index.js` as one Vercel Function, so both share one URL.
+
+1. Import the repository in Vercel and keep the root directory as the repository root. The install, build and output settings come from `vercel.json`.
+2. Add every backend environment variable, plus `NODE_ENV=production` and `CLIENT_URL` and `API_URL` set to the project URL, e.g. `https://mini-chatgpt.vercel.app`.
+3. Allow access from anywhere under **Network Access** in MongoDB Atlas.
+
+Vercel limits request bodies to 4.5 MB, which is why PDF uploads are capped at 4 MB.
+
+### Render
 
 In production the backend also serves the built React app, so the whole project runs as one Render **Web Service** on one URL. Keeping one URL means the login cookie stays first-party and works in every browser.
 

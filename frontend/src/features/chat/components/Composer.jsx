@@ -1,12 +1,17 @@
 import { useRef, useState } from "react";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { useChat } from "../hooks/useChat";
+import { setError } from "../service/chat.slice.js";
+
+// Same limit as the backend (Vercel rejects bigger uploads)
+const MAX_PDF_SIZE = 4 * 1024 * 1024;
 
 function Composer() {
   const [message, setMessage] = useState("");
   const [isUploading, setIsUploading] = useState(false);
   const [uploadedFile, setUploadedFile] = useState(null);
   const fileInputRef = useRef(null);
+  const dispatch = useDispatch();
   const { handleSendMessage, handleUploadDocument } = useChat();
   const currentChatId = useSelector((state) => state.chat.currentChatId);
   const isLoading = useSelector((state) => state.chat.isLoading);
@@ -27,6 +32,11 @@ function Composer() {
     const file = e.target.files[0];
     e.target.value = "";
     if (!file) return;
+
+    if (file.size > MAX_PDF_SIZE) {
+      dispatch(setError("File size must be 4 MB or less"));
+      return;
+    }
 
     setIsUploading(true);
     const data = await handleUploadDocument({ file, chatId: currentChatId });

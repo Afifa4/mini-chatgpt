@@ -1,4 +1,3 @@
-import { initializeSocketConnection } from "../service/chat.socket";
 import { useDispatch, useSelector } from "react-redux";
 import {
   setChats,
@@ -97,7 +96,6 @@ export const useChat = () => {
   }
 
   return {
-    initializeSocketConnection,
     handleSendMessage,
     handleGetChats,
     handleOpenChat,

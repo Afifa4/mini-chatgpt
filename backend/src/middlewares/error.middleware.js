@@ -47,7 +47,7 @@ export function errorHandler(err, req, res, next) {
     return res.status(400).json({
       message:
         err.code === "LIMIT_FILE_SIZE"
-          ? "File size must be 10 MB or less"
+          ? "File size must be 4 MB or less"
           : "File upload failed",
       success: false,
     });

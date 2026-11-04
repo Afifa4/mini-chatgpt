@@ -15,4 +15,17 @@ redis.on("error", (err) => {
   console.error("Redis connection error:", err);
 });
 
+// Serverless hosts (Vercel) start the app on the first request, so that request waits here
+export function waitForRedis(timeoutMs = 5000) {
+  if (redis.status === "ready") return Promise.resolve();
+
+  return new Promise((resolve) => {
+    const timer = setTimeout(resolve, timeoutMs);
+    redis.once("ready", () => {
+      clearTimeout(timer);
+      resolve();
+    });
+  });
+}
+
 export default redis;
