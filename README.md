@@ -2,6 +2,8 @@
 
 A full-stack AI chat app built with the MERN stack. You can chat with an AI assistant that searches the web for current information, and upload a PDF to ask questions about it. Answers about a PDF cite the page they came from.
 
+**Live demo:** https://mini-chatgpt-delta.vercel.app
+
 > Personal learning project. It is not affiliated with OpenAI or ChatGPT.
 
 ## Screenshots
